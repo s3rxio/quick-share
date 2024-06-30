@@ -36,6 +36,19 @@
       "plugin": "@nx/jest/plugin",
       "options": {
         "targetName": "test"
+      },
+      "exclude": [
+        "apps/backend-e2e/**/*",
+        "backend-e2e/**/*",
+        "apps/backend-e2e/**/*"
+      ]
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview"
       }
     }
   ],
