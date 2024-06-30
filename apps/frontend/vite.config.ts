@@ -24,6 +24,13 @@ export default defineConfig({
   //  plugins: [ nxViteTsPaths() ],
   // },
 
+  resolve: {
+    alias: {
+      '@': '/src',
+      '~': '/src/shared',
+    },
+  },
+
   build: {
     outDir: '../../dist/apps/quick-share',
     emptyOutDir: true,
