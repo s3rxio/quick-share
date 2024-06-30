@@ -78,8 +78,8 @@
   },
   "commit_scope": {
     "enable": true,
-    "custom_scope": false,
-    "initial_value": "repo",
+    "custom_scope": true,
+    "initial_value": "",
     "options": [
       {
         "value": "repo",
@@ -90,12 +90,24 @@
         "label": "frontend"
       },
       {
+        "value": "frontend-e2e",
+        "label": "frontend-e2e"
+      },
+      {
         "value": "backend",
         "label": "backend"
       },
       {
+        "value": "backend-e2e",
+        "label": "backend-e2e"
+      },
+      {
         "value": "lib",
         "label": "lib"
+      },
+      {
+        "value": "",
+        "label": "none"
       }
     ]
   },
