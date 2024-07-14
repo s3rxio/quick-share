@@ -19,10 +19,11 @@ import { UserModule } from "./user/user.module";
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        entities: [],
+        entities: [User],
         synchronize: true
       })
-    })
+    }),
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService]
