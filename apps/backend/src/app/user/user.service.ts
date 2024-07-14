@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Where } from "~/types";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
-import { ExceptionMessages } from "~/exception-messages";
+import { ExceptionMessage } from "~/exception-messages";
 
 @Injectable()
 export class UserService {
@@ -76,7 +76,7 @@ export class UserService {
     const isExist = await this.repository.existsBy([{ username }, { email }]);
 
     if (isExist) {
-      throw new ConflictException(ExceptionMessages.AlreadyExists);
+      throw new ConflictException(ExceptionMessage.AlreadyExists);
     }
 
     return isExist;
