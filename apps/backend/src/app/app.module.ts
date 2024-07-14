@@ -1,10 +1,13 @@
-import { Module } from "@nestjs/common";
+import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./user/user.entity";
 import { UserModule } from "./user/user.module";
+import { AuthModule } from "./auth/auth.module";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { AuthGuard } from "./auth/auth.guard";
 
 @Module({
   imports: [
@@ -23,9 +26,21 @@ import { UserModule } from "./user/user.module";
         synchronize: true
       })
     }),
-    UserModule
+    UserModule,
+    AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [
+    AppService,
+    // Guards
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    }
+  ]
 })
 export class AppModule {}

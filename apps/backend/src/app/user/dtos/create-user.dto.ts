@@ -9,6 +9,7 @@ export class CreateUserDto {
   @Exclude({
     toPlainOnly: true
   })
+  @IsString()
   @Length(6, 32)
   password: string;
 

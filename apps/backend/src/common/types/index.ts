@@ -1,9 +1,7 @@
 import { BaseEntity, FindOptionsWhere, Repository } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
-export type Where<E extends BaseEntity> =
-  | FindOptionsWhere<E>
-  | FindOptionsWhere<E>[];
+export type Where<E extends BaseEntity> = FindOptionsWhere<E>;
 
 export type Criteria<E extends BaseEntity = never> =
   | string

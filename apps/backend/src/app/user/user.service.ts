@@ -41,10 +41,22 @@ export class UserService {
     });
   }
 
+  async findOneBy(where: Where<User>[]) {
+    const user = await this.repository.findOneBy(where);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return user;
+  }
+
   async create(dto: CreateUserDto) {
     await this.existOrFail(dto.username, dto.email);
 
-    return this.repository.save(dto);
+    const user = this.repository.create(dto);
+
+    return this.repository.save(user);
   }
 
   async update(id: string, dto: UpdateUserDto) {
