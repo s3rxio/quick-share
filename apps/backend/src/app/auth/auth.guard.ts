@@ -1,5 +1,5 @@
 import { Reflector } from "@nestjs/core";
-import { UserService } from "@/user/user.service";
+import { UsersService } from "@/users/users.service";
 import {
   CanActivate,
   ExecutionContext,
@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
-    private readonly userService: UserService
+    private readonly userService: UsersService
   ) {}
 
   async canActivate(context: ExecutionContext) {

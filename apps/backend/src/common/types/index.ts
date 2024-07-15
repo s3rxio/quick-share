@@ -1,4 +1,4 @@
-import { User } from "@/user/user.entity";
+import { User } from "@/users/user.entity";
 import { BaseEntity, FindOptionsWhere } from "typeorm";
 
 export type Where<E extends BaseEntity> = FindOptionsWhere<E>;

@@ -12,7 +12,7 @@ import { UpdateUserDto } from "./dtos/update-user.dto";
 import { ExceptionMessage } from "~/enums";
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>
   ) {}

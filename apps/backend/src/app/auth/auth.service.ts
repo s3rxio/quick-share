@@ -1,8 +1,8 @@
-import { CreateUserDto } from "@/user/dtos/create-user.dto";
+import { CreateUserDto } from "@/users/dtos/create-user.dto";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { LoginDto } from "./dtos/login.dto";
-import { UserService } from "@/user/user.service";
-import { User } from "@/user/user.entity";
+import { UsersService } from "@/users/users.service";
+import { User } from "@/users/user.entity";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 
@@ -13,12 +13,12 @@ import * as bcrypt from "bcrypt";
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService
   ) {}
 
   async login(dto: LoginDto) {
-    const user: User | null = await this.userService
+    const user: User | null = await this.usersService
       .findOneBy([
         {
           username: dto.login
@@ -45,7 +45,7 @@ export class AuthService {
       process.env.BCRYPT_SALT_ROUNDS
     );
 
-    const user = await this.userService.create({
+    const user = await this.usersService.create({
       ...dto,
       password: hash
     });

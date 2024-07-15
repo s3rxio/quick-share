@@ -3,8 +3,8 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "./user/user.entity";
-import { UserModule } from "./user/user.module";
+import { User } from "./users/user.entity";
+import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { AuthGuard } from "./auth/auth.guard";
@@ -26,7 +26,7 @@ import { AuthGuard } from "./auth/auth.guard";
         synchronize: true
       })
     }),
-    UserModule,
+    UsersModule,
     AuthModule
   ],
   controllers: [AppController],
