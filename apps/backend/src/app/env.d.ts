@@ -3,6 +3,8 @@ export {};
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      NODE_ENV?: string;
+
       API_HOST?: string;
       API_PORT?: string;
 
@@ -14,7 +16,7 @@ declare global {
 
       JWT_SECRET?: string;
 
-      NODE_ENV?: string;
+      BCRYPT_SALT_ROUNDS?: string;
     }
   }
 }

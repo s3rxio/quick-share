@@ -4,10 +4,10 @@ import { LoginDto } from "./dtos/login.dto";
 import { UserService } from "@/user/user.service";
 import { User } from "@/user/user.entity";
 import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
 
 /* 
   TODO:
-   - add hashing
    - add refresh tokens
 */
 @Injectable()
@@ -29,7 +29,8 @@ export class AuthService {
       ])
       .catch(() => null); // TODO: create findOneByOrFail
 
-    if (!user || user.password !== dto.password) {
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!user || !isMatch) {
       throw new UnauthorizedException("Login or password is incorrect");
     }
 
@@ -39,7 +40,15 @@ export class AuthService {
   }
 
   async register(dto: CreateUserDto) {
-    const user = await this.userService.create(dto);
+    const hash = await bcrypt.hash(
+      dto.password,
+      process.env.BCRYPT_SALT_ROUNDS
+    );
+
+    const user = await this.userService.create({
+      ...dto,
+      password: hash
+    });
 
     return {
       accessToken: await this.generateToken(user)
