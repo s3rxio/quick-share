@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(req);
 
     if (!token) {
@@ -50,9 +50,7 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(
-    req: Record<string, unknown>
-  ): string | undefined {
+  private extractTokenFromHeader(req: Request): string | undefined {
     const [type, token] = req.headers["authorization"]?.split(" ") ?? [];
     return type === "Bearer" ? token : undefined;
   }
