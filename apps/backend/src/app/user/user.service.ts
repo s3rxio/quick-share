@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Where } from "~/types";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
-import { ExceptionMessage } from "~/exception-messages";
+import { ExceptionMessage } from "~/enums";
 
 @Injectable()
 export class UserService {
