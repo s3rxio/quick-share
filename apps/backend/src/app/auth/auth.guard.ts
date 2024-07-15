@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { IS_PUBLIC_KEY } from "~/decoratos";
+import { TokenPayload } from "~/types";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -35,15 +36,11 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync<TokenPayload>(token, {
         secret: process.env.JWT_SECRET
       });
 
       const user = await this.userService.findOneById(payload.id);
-
-      if (!user) {
-        throw new UnauthorizedException();
-      }
 
       req["user"] = user;
     } catch {
