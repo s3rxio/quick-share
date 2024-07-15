@@ -11,7 +11,10 @@ import {
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
+import { Roles } from "@/roles/roles.decorator";
+import { Role } from "~/enums";
 
+@Roles(Role.Admin)
 @Controller("users")
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
@@ -21,6 +24,7 @@ export class UsersController {
     return this.userService.findAll();
   }
 
+  @Roles(Role.User)
   @Get(":id")
   async findOneById(@Param("id", ParseUUIDPipe) id: string) {
     return this.userService.findOne({ id });
