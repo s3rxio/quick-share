@@ -18,16 +18,16 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto) {
-    const user: User | null = await this.usersService
-      .findOneBy([
+    const user = await this.usersService.findOne({
+      where: [
         {
           username: dto.login
         },
         {
           email: dto.login
         }
-      ])
-      .catch(() => null); // TODO: create findOneByOrFail
+      ]
+    });
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
     if (!user || !isMatch) {

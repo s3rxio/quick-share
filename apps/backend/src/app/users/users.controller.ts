@@ -19,6 +19,12 @@ import { Role } from "~/enums";
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
+  /* 
+    TODO: 
+     - Add pagination
+     - Add sorting
+     - Add filtering
+  */
   @Get()
   async findAll() {
     return this.userService.findAll();
@@ -27,7 +33,7 @@ export class UsersController {
   @Roles(Role.User)
   @Get(":id")
   async findOneById(@Param("id", ParseUUIDPipe) id: string) {
-    return this.userService.findOne({ id });
+    return this.userService.findOneByIdOrFail(id);
   }
 
   @Post()

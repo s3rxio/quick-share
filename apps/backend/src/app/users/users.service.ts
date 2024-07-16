@@ -4,9 +4,8 @@ import {
   NotFoundException
 } from "@nestjs/common";
 import { User } from "./user.entity";
-import { Repository } from "typeorm";
+import { FindManyOptions, FindOneOptions, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Where } from "~/types";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 import { ExceptionMessage } from "~/enums";
@@ -17,16 +16,20 @@ export class UsersService {
     @InjectRepository(User) private readonly repository: Repository<User>
   ) {}
 
-  findAll(where?: Where<User>) {
+  findAll(options?: FindManyOptions<User>) {
     return this.repository.find({
-      where
+      ...options,
+      skip: options?.skip || 0,
+      take: options?.take || 10
     });
   }
 
-  async findOne(where: Where<User>) {
-    const user = await this.repository.findOne({
-      where
-    });
+  async findOne(options: FindOneOptions<User>) {
+    return this.repository.findOne(options);
+  }
+
+  async findOneOrFail(options: FindOneOptions<User>) {
+    const user = await this.repository.findOne(options);
 
     if (!user) {
       throw new NotFoundException();
@@ -37,18 +40,18 @@ export class UsersService {
 
   async findOneById(id: string) {
     return this.findOne({
-      id
+      where: {
+        id
+      }
     });
   }
 
-  async findOneBy(where: Where<User>[]) {
-    const user = await this.repository.findOneBy(where);
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    return user;
+  async findOneByIdOrFail(id: string) {
+    return this.findOneOrFail({
+      where: {
+        id
+      }
+    });
   }
 
   async create(dto: CreateUserDto) {
@@ -60,14 +63,14 @@ export class UsersService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    await this.findOneById(id);
+    await this.findOneByIdOrFail(id);
     await this.existOrFail(dto.username, dto.email);
 
     return this.repository.update({ id }, dto);
   }
 
   async delete(id: string) {
-    await this.findOneById(id);
+    await this.findOneByIdOrFail(id);
 
     return this.repository.delete({ id });
   }
