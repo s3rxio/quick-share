@@ -8,6 +8,11 @@ export type Criteria<E extends BaseEntity = never> =
   | number
   | FindOptionsWhere<E>;
 
+export type SelectByString<E extends BaseEntity> = keyof Omit<
+  E,
+  keyof BaseEntity
+>;
+
 export type JwtPayload<T> = T & {
   iat: number;
   exp: number;

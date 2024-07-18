@@ -42,7 +42,7 @@ export class AuthService {
   async register(dto: CreateUserDto) {
     const hash = await bcrypt.hash(
       dto.password,
-      process.env.BCRYPT_SALT_ROUNDS
+      Number(process.env.BCRYPT_SALT_ROUNDS)
     );
 
     const user = await this.usersService.create({

@@ -9,6 +9,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 import { ExceptionMessage } from "~/enums";
+import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
+import { Where } from "~/types";
 
 @Injectable()
 export class UsersService {
@@ -16,11 +18,29 @@ export class UsersService {
     @InjectRepository(User) private readonly repository: Repository<User>
   ) {}
 
-  findAll(options?: FindManyOptions<User>) {
+  async findAll(options?: FindManyOptions<User> | ListUsersOptionsDto) {
+    const { skip, take, order: orderOption, select, ...rest } = options;
+
+    const isDto = options instanceof ListUsersOptionsDto;
+
+    const order = isDto
+      ? {
+          [options.orderBy]: orderOption
+        }
+      : options.order;
+
+    delete (rest as ListUsersOptionsDto).orderBy;
+
+    const where = isDto ? (rest as Where<User>) : options.where;
+    const restOptions = isDto ? {} : options;
+
     return this.repository.find({
-      ...options,
-      skip: options?.skip || 0,
-      take: options?.take || 10
+      where,
+      select,
+      skip,
+      take,
+      order,
+      ...restOptions
     });
   }
 
@@ -55,7 +75,7 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto) {
-    await this.existOrFail(dto.username, dto.email);
+    await this.existByOrFail({ username: dto.username }, { email: dto.email });
 
     const user = this.repository.create(dto);
 
@@ -64,7 +84,11 @@ export class UsersService {
 
   async update(id: string, dto: UpdateUserDto) {
     await this.findOneByIdOrFail(id);
-    await this.existOrFail(dto.username, dto.email);
+
+    await this.existByOrFail(
+      { username: dto.username || "" },
+      { email: dto.email || "" }
+    );
 
     return this.repository.update({ id }, dto);
   }
@@ -75,8 +99,8 @@ export class UsersService {
     return this.repository.delete({ id });
   }
 
-  async existOrFail(username: string, email: string) {
-    const isExist = await this.repository.existsBy([{ username }, { email }]);
+  async existByOrFail(...where: Where<User>[]) {
+    const isExist = await this.repository.existsBy(where);
 
     if (isExist) {
       throw new ConflictException(ExceptionMessage.AlreadyExists);

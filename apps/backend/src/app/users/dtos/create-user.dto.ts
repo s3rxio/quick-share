@@ -1,5 +1,15 @@
-import { Exclude } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
+import { Exclude, Transform } from "class-transformer";
+import {
+  IsArray,
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length
+} from "class-validator";
+import { Role } from "~/enums";
+import { toArray } from "~/libs/transformFns";
 
 export class CreateUserDto {
   @IsString()
@@ -15,4 +25,9 @@ export class CreateUserDto {
 
   @IsEmail()
   email: string;
+
+  @IsArray()
+  @IsIn(Object.values(Role), { each: true })
+  @IsOptional()
+  roles?: Role[];
 }

@@ -6,28 +6,24 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post
+  Post,
+  Query
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 import { Roles } from "@/roles/roles.decorator";
 import { Role } from "~/enums";
+import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
 
 @Roles(Role.Admin)
 @Controller("users")
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  /* 
-    TODO: 
-     - Add pagination
-     - Add sorting
-     - Add filtering
-  */
   @Get()
-  async findAll() {
-    return this.userService.findAll();
+  async findAll(@Query() options: ListUsersOptionsDto) {
+    return this.userService.findAll(options);
   }
 
   @Roles(Role.User)
