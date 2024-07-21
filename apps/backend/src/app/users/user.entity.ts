@@ -1,5 +1,6 @@
+import { Share } from "@/shares/share.entity";
 import { Exclude } from "class-transformer";
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "~/entities";
 import { Role } from "~/enums";
 
@@ -27,4 +28,9 @@ export class User extends BaseEntity {
     array: true
   })
   roles: Role[];
+
+  @OneToMany(() => Share, share => share.user, {
+    onDelete: "NO ACTION"
+  })
+  shares: Share[];
 }

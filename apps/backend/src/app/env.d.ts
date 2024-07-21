@@ -7,6 +7,7 @@ declare global {
 
       API_HOST?: string;
       API_PORT?: string;
+      API_URL?: string;
 
       DB_HOST?: string;
       DB_PORT?: number;
@@ -17,6 +18,12 @@ declare global {
       JWT_SECRET?: string;
 
       BCRYPT_SALT_ROUNDS?: string;
+
+      S3_ACCESS_KEY?: string;
+      S3_SECRET_KEY?: string;
+      S3_ENDPOINT?: string;
+      S3_REGION?: string;
+      S3_BUCKET_NAME?: string;
     }
   }
 }

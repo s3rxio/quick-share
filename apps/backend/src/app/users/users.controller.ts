@@ -26,10 +26,21 @@ export class UsersController {
     return this.userService.findAll(options);
   }
 
-  @Roles(Role.User)
+  @Roles(Role.User, Role.Admin)
   @Get(":id")
   async findOneById(@Param("id", ParseUUIDPipe) id: string) {
     return this.userService.findOneByIdOrFail(id);
+  }
+
+  @Roles(Role.User, Role.Admin)
+  @Get(":id/shares")
+  async findOneByIdWithShares(@Param("id", ParseUUIDPipe) id: string) {
+    return this.userService.findOneOrFail({
+      where: {
+        id
+      },
+      relations: ["shares"]
+    });
   }
 
   @Post()
