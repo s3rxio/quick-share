@@ -8,6 +8,8 @@ declare global {
       API_HOST?: string;
       API_PORT?: string;
       API_URL?: string;
+      API_ROOT_USERNAME?: string;
+      API_ROOT_PASSWORD?: string;
 
       DB_HOST?: string;
       DB_PORT?: number;

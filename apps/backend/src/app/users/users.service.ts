@@ -8,9 +8,10 @@ import { FindManyOptions, FindOneOptions, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
-import { ExceptionMessage } from "~/enums";
+import { ExceptionMessage, Role } from "~/enums";
 import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
 import { Where } from "~/types";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService {
@@ -107,5 +108,33 @@ export class UsersService {
     }
 
     return isExist;
+  }
+
+  generateHash(password: string) {
+    return bcrypt.hash(password, Number(process.env.BCRYPT_SALT_ROUNDS));
+  }
+
+  async seed() {
+    const rootIsExist = await this.repository.existsBy({
+      username: process.env.API_ROOT_USERNAME || "root"
+    });
+
+    const count = await this.repository.count();
+    if (rootIsExist || count > 0) {
+      return;
+    }
+
+    const rootUser = this.repository.create({
+      username: process.env.API_ROOT_USERNAME || "root",
+      email: `${
+        process.env.API_ROOT_EMAIL || process.env.API_ROOT_USERNAME
+      }@localhost`,
+      password: await this.generateHash(
+        process.env.API_ROOT_PASSWORD || "root"
+      ),
+      roles: [Role.Admin]
+    });
+
+    await this.repository.save(rootUser);
   }
 }
