@@ -10,7 +10,7 @@ import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 import { ExceptionMessage, Role } from "~/enums";
 import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
-import { Where } from "~/types";
+import { PaginatedResponse, Where } from "~/types";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
@@ -19,7 +19,9 @@ export class UsersService {
     @InjectRepository(User) private readonly repository: Repository<User>
   ) {}
 
-  async findAll(options?: FindManyOptions<User> | ListUsersOptionsDto) {
+  async findAll(
+    options?: FindManyOptions<User> | ListUsersOptionsDto
+  ): Promise<PaginatedResponse<User>> {
     const { skip, take, order: orderOption, select, ...rest } = options;
 
     const isDto = options instanceof ListUsersOptionsDto;
@@ -35,7 +37,7 @@ export class UsersService {
     const where = isDto ? (rest as Where<User>) : options.where;
     const restOptions = isDto ? {} : options;
 
-    return this.repository.find({
+    const [users, count] = await this.repository.findAndCount({
       where,
       select,
       skip,
@@ -43,6 +45,11 @@ export class UsersService {
       order,
       ...restOptions
     });
+
+    return {
+      items: users,
+      total: count
+    };
   }
 
   async findOne(options: FindOneOptions<User>) {

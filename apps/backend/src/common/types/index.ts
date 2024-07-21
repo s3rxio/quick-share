@@ -19,3 +19,8 @@ export type JwtPayload<T> = T & {
 };
 
 export type TokenPayload = JwtPayload<Pick<User, "id" | "username" | "email">>;
+
+export type PaginatedResponse<T> = {
+  items: T[];
+  total: number;
+};
