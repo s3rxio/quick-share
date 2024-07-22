@@ -13,9 +13,7 @@ import {
 import { SharesService } from "./shares.service";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { SharesGuard } from "./shares.guard";
-import { Public } from "~/decoratos";
 
-@Public()
 @Controller("shares")
 export class SharesController {
   constructor(private readonly sharesService: SharesService) {}
@@ -26,7 +24,7 @@ export class SharesController {
   }
 
   @Post()
-  @UseInterceptors(FilesInterceptor("file"))
+  @UseInterceptors(FilesInterceptor("files"))
   async upload(
     @UploadedFiles(
       new ParseFilePipeBuilder()
