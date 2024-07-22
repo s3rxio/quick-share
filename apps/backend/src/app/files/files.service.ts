@@ -32,13 +32,20 @@ export class FilesService {
 
       const [fileName, ...fileExts] = file.originalname.split(".");
 
-      const fileEntity = this.repository.create({
-        name: `${fileName}-${Date.now()}.${fileExts.join(".")}`,
-        originalName: file.originalname,
-        mimeType: file.mimetype,
-        size: file.size,
-        share: share
-      });
+      const randomNumber = Math.round(Math.random() * 100);
+      const name = `${fileName}-${Date.now()}${i}${randomNumber}.${fileExts.join(
+        "."
+      )}`;
+
+      const fileEntity = await this.repository
+        .create({
+          name,
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          size: file.size,
+          share: share
+        })
+        .save();
 
       await this.s3.putObject({
         Bucket: process.env.S3_BUCKET_NAME,
@@ -48,10 +55,14 @@ export class FilesService {
         ACL: ObjectCannedACL.public_read
       });
 
+      this.repository.update(fileEntity.id, {
+        downloadLink: fileEntity.downloadLink
+      });
+
       filesEntities.push(fileEntity);
     }
 
-    return this.repository.save(filesEntities);
+    return filesEntities;
   }
 
   /* 

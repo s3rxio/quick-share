@@ -26,7 +26,8 @@ export class File extends BaseEntity {
   downloadLink: string;
 
   @ManyToOne(() => Share, share => share.files, {
-    nullable: true
+    nullable: true,
+    createForeignKeyConstraints: false
   })
   @Exclude()
   share: Share;
@@ -36,7 +37,5 @@ export class File extends BaseEntity {
     this.downloadLink = new URL(
       `${process.env.API_URL}/files/${this.id}/download`
     ).toString();
-
-    this.save();
   }
 }
