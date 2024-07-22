@@ -6,12 +6,14 @@ import { File } from "./file.entity";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Response } from "express";
 import { Share } from "@/shares/share.entity";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class FilesService {
   constructor(
     @InjectRepository(File) private readonly repository: Repository<File>,
-    @InjectS3() private readonly s3: S3
+    @InjectS3() private readonly s3: S3,
+    private readonly configService: ConfigService
   ) {}
 
   async findOneOrFail(id: string) {
@@ -48,7 +50,7 @@ export class FilesService {
         .save();
 
       await this.s3.putObject({
-        Bucket: process.env.S3_BUCKET_NAME,
+        Bucket: this.configService.get<string>("s3.bucketName"),
         Key: fileEntity.name,
         Body: file.buffer,
         ContentType: file.mimetype,
@@ -72,9 +74,10 @@ export class FilesService {
   async download(id: string, res: Response) {
     const file = await this.findOneOrFail(id);
 
-    const directLink = new URL(
-      `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${file.name}`
-    );
+    const endpoint = this.configService.get<string>("s3.endpoint");
+    const bucketName = this.configService.get<string>("s3.bucketName");
+
+    const directLink = new URL(`${endpoint}/${bucketName}/${file.name}`);
 
     res.redirect(new URL(directLink).toString());
   }
@@ -83,7 +86,7 @@ export class FilesService {
     const file = await this.findOneOrFail(id);
 
     await this.s3.deleteObject({
-      Bucket: process.env.S3_BUCKET_NAME,
+      Bucket: this.configService.get<string>("s3.bucketName"),
       Key: file.name
     });
 

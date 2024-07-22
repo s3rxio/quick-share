@@ -1,4 +1,3 @@
-import { SharesService } from "@/shares/shares.service";
 import {
   ConflictException,
   Injectable,
@@ -15,11 +14,13 @@ import { ExceptionMessage, Role } from "~/enums";
 import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
 import { PaginatedResponse, Where } from "~/types";
 import * as bcrypt from "bcrypt";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {
   constructor(
-    @InjectRepository(User) private readonly repository: Repository<User>
+    @InjectRepository(User) private readonly repository: Repository<User>,
+    private readonly configService: ConfigService
   ) {}
 
   onApplicationBootstrap() {
@@ -125,12 +126,17 @@ export class UsersService implements OnApplicationBootstrap {
   }
 
   generateHash(password: string) {
-    return bcrypt.hash(password, Number(process.env.BCRYPT_SALT_ROUNDS));
+    return bcrypt.hash(
+      password,
+      this.configService.get<number>("bcrypt.saltRounds")
+    );
   }
 
   async seed() {
+    const rootUsername = this.configService.get<string>("api.root.username");
+
     const rootIsExist = await this.repository.existsBy({
-      username: process.env.API_ROOT_USERNAME || "root"
+      username: rootUsername
     });
 
     const count = await this.repository.count();
@@ -141,12 +147,10 @@ export class UsersService implements OnApplicationBootstrap {
     Logger.log("Seeding users...");
 
     await this.repository.save({
-      username: process.env.API_ROOT_USERNAME || "root",
-      email: `${
-        process.env.API_ROOT_EMAIL || process.env.API_ROOT_USERNAME
-      }@localhost`,
+      username: rootUsername,
+      email: `${rootUsername}@localhost`,
       password: await this.generateHash(
-        process.env.API_ROOT_PASSWORD || "root"
+        this.configService.get<string>("api.root.password")
       ),
       roles: [Role.Admin]
     });

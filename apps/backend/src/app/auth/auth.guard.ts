@@ -10,13 +10,15 @@ import { JwtService } from "@nestjs/jwt";
 import { IS_PUBLIC_KEY } from "~/decoratos";
 import { TokenPayload } from "~/types";
 import { Request } from "express";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
-    private readonly userService: UsersService
+    private readonly userService: UsersService,
+    private readonly configService: ConfigService
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -38,7 +40,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync<TokenPayload>(token, {
-        secret: process.env.JWT_SECRET
+        secret: this.configService.get<string>("jwt.secret")
       });
 
       const user = await this.userService.findOneByIdOrFail(payload.id);

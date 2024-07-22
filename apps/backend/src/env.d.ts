@@ -12,7 +12,7 @@ declare global {
       API_ROOT_PASSWORD?: string;
 
       DB_HOST?: string;
-      DB_PORT?: number;
+      DB_PORT?: string;
       DB_USER?: string;
       DB_PASSWORD?: string;
       DB_NAME?: string;

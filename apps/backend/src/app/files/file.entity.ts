@@ -1,3 +1,4 @@
+import { staticConfig } from "@/config";
 import { Share } from "@/shares/share.entity";
 import { Exclude } from "class-transformer";
 import { AfterInsert, Column, Entity, ManyToOne } from "typeorm";
@@ -35,7 +36,7 @@ export class File extends BaseEntity {
   @AfterInsert()
   afterInsertActions() {
     this.downloadLink = new URL(
-      `${process.env.API_URL}/files/${this.id}/download`
+      `${staticConfig.api.url}/files/${this.id}/download`
     ).toString();
   }
 }

@@ -7,6 +7,7 @@ import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app/app.module";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,10 +29,12 @@ async function bootstrap() {
     })
   );
 
-  const host = process.env.API_HOST || "localhost";
-  const port = process.env.API_PORT || 3000;
-  await app.listen(port, host);
+  const configService = app.get<ConfigService>(ConfigService);
 
+  const host = configService.get<string>("api.host");
+  const port = configService.get<number>("api.port");
+
+  await app.listen(port, host);
   Logger.log(
     `🚀 Application is running on: http://${host}:${port}/${globalPrefix}`
   );

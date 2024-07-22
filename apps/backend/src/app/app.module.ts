@@ -1,49 +1,38 @@
 import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "./users/user.entity";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { AuthGuard } from "./auth/auth.guard";
 import { RolesGuard } from "./roles/roles.guard";
 import { SharesModule } from "./shares/shares.module";
-import { Share } from "./shares/share.entity";
 import { S3Module } from "nestjs-s3";
 import { FilesModule } from "./files/files.module";
-import { File } from "./files/file.entity";
+import { getConfig } from "./config";
+import { DbConfig, S3Config } from "~/types";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [`.env.${process.env.NODE_ENV}`, `.env`, `.env.local`]
+      envFilePath: [`.env.${process.env.NODE_ENV}`, `.env`, `.env.local`],
+      load: [getConfig],
+      isGlobal: true
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: async () => ({
-        type: "postgres",
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        entities: [User, Share, File],
-        synchronize: true
-      })
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) =>
+        configService.get<DbConfig>("db"),
+      inject: [ConfigService]
     }),
     S3Module.forRootAsync({
-      useFactory: async () => ({
-        config: {
-          credentials: {
-            accessKeyId: process.env.S3_ACCESS_KEY,
-            secretAccessKey: process.env.S3_SECRET_KEY
-          },
-          endpoint: process.env.S3_ENDPOINT,
-          region: process.env.S3_REGION,
-          forcePathStyle: true
-        }
-      })
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        config: configService.get<S3Config>("s3")
+      }),
+      inject: [ConfigService]
     }),
     UsersModule,
     AuthModule,
