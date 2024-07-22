@@ -3,6 +3,7 @@ import {
   Column,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany
 } from "typeorm";
@@ -20,6 +21,9 @@ export class Share extends BaseEntity {
 
   @ManyToOne(() => User, user => user.shares, {
     nullable: false
+  })
+  @JoinColumn({
+    name: "userId"
   })
   user: User;
 

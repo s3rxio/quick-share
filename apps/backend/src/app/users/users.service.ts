@@ -1,7 +1,10 @@
+import { SharesService } from "@/shares/shares.service";
 import {
   ConflictException,
   Injectable,
-  NotFoundException
+  Logger,
+  NotFoundException,
+  OnApplicationBootstrap
 } from "@nestjs/common";
 import { User } from "./user.entity";
 import { FindManyOptions, FindOneOptions, Repository } from "typeorm";
@@ -14,10 +17,14 @@ import { PaginatedResponse, Where } from "~/types";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>
   ) {}
+
+  onApplicationBootstrap() {
+    this.seed();
+  }
 
   async findAll(
     options?: FindManyOptions<User> | ListUsersOptionsDto
@@ -131,7 +138,9 @@ export class UsersService {
       return;
     }
 
-    const rootUser = this.repository.create({
+    Logger.log("Seeding users...");
+
+    await this.repository.save({
       username: process.env.API_ROOT_USERNAME || "root",
       email: `${
         process.env.API_ROOT_EMAIL || process.env.API_ROOT_USERNAME
@@ -142,6 +151,6 @@ export class UsersService {
       roles: [Role.Admin]
     });
 
-    await this.repository.save(rootUser);
+    Logger.log("Seeding users... Done.");
   }
 }

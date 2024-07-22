@@ -11,11 +11,9 @@ import { AuthGuard } from "./auth/auth.guard";
 import { RolesGuard } from "./roles/roles.guard";
 import { SharesModule } from "./shares/shares.module";
 import { Share } from "./shares/share.entity";
-import { InjectS3, S3, S3Module } from "nestjs-s3";
+import { S3Module } from "nestjs-s3";
 import { FilesModule } from "./files/files.module";
 import { File } from "./files/file.entity";
-import { UsersService } from "./users/users.service";
-import { ObjectCannedACL } from "@aws-sdk/client-s3";
 
 @Module({
   imports: [
@@ -72,26 +70,4 @@ import { ObjectCannedACL } from "@aws-sdk/client-s3";
     }
   ]
 })
-export class AppModule {
-  constructor(
-    private readonly usersService: UsersService,
-    @InjectS3() private readonly s3: S3
-  ) {}
-
-  async onModuleInit() {
-    const bucket = await this.s3
-      .getBucketAcl({
-        Bucket: process.env.S3_BUCKET_NAME
-      })
-      .catch(() => null);
-
-    if (!bucket) {
-      await this.s3.createBucket({
-        Bucket: process.env.S3_BUCKET_NAME,
-        ACL: ObjectCannedACL.public_read
-      });
-    }
-
-    await this.usersService.seed();
-  }
-}
+export class AppModule {}

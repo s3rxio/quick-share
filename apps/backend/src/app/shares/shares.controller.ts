@@ -6,6 +6,7 @@ import {
   ParseFilePipeBuilder,
   ParseUUIDPipe,
   Post,
+  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors
@@ -13,6 +14,7 @@ import {
 import { SharesService } from "./shares.service";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { SharesGuard } from "./shares.guard";
+import { Request } from "express";
 
 @Controller("shares")
 export class SharesController {
@@ -35,9 +37,11 @@ export class SharesController {
           fileIsRequired: true
         })
     )
-    files: Express.Multer.File[]
+    files: Express.Multer.File[],
+    @Req()
+    req: Request
   ) {
-    return this.sharesService.upload(files);
+    return this.sharesService.upload(files, req);
   }
 
   @UseGuards(SharesGuard)
