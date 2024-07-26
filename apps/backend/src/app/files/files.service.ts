@@ -7,9 +7,13 @@ import { ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Response } from "express";
 import { Share } from "@/shares/share.entity";
 import { ConfigService } from "@nestjs/config";
+import JsZip from "jszip";
+import { Readable } from "node:stream";
 
 @Injectable()
 export class FilesService {
+  private readonly zip = new JsZip();
+
   constructor(
     @InjectRepository(File) private readonly repository: Repository<File>,
     @InjectS3() private readonly s3: S3,
@@ -49,13 +53,7 @@ export class FilesService {
         })
         .save();
 
-      await this.s3.putObject({
-        Bucket: this.configService.get<string>("s3.bucketName"),
-        Key: fileEntity.name,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: ObjectCannedACL.public_read
-      });
+      await this.uploadS3Object(fileEntity.name, file.mimetype, file.buffer);
 
       this.repository.update(fileEntity.id, {
         downloadLink: fileEntity.downloadLink
@@ -67,19 +65,10 @@ export class FilesService {
     return filesEntities;
   }
 
-  /* 
-    TODO: REDO!
-     - https://docs.nestjs.com/techniques/streaming-files
-    */
   async download(id: string, res: Response) {
     const file = await this.findOneOrFail(id);
 
-    const endpoint = this.configService.get<string>("s3.endpoint");
-    const bucketName = this.configService.get<string>("s3.bucketName");
-
-    const directLink = new URL(`${endpoint}/${bucketName}/${file.name}`);
-
-    res.redirect(new URL(directLink).toString());
+    res.redirect(this.getS3ObjectUrl(file.name));
   }
 
   async delete(id: string) {
@@ -91,5 +80,75 @@ export class FilesService {
     });
 
     return this.repository.delete({ id });
+  }
+
+  private getS3Object(key: string) {
+    return this.s3.getObject({
+      Bucket: this.configService.get<string>("s3.bucketName"),
+      Key: key
+    });
+  }
+
+  private uploadS3Object(
+    key: string,
+    contentType: string,
+    body: string | Uint8Array | Buffer | Readable | ReadableStream | Blob
+  ) {
+    return this.s3.putObject({
+      Bucket: this.configService.get<string>("s3.bucketName"),
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+      ACL: ObjectCannedACL.public_read
+    });
+  }
+
+  private getS3ObjectUrl(key: string) {
+    const endpoint = this.configService.get<string>("s3.endpoint");
+    const bucketName = this.configService.get<string>("s3.bucketName");
+
+    return new URL(`${endpoint}/${bucketName}/${key}`).toString();
+  }
+
+  async createArchive(files: File[], share: Share): Promise<File> {
+    const s3Files = await Promise.all(
+      files.map(
+        async file =>
+          await this.getS3Object(file.name).then(async x => ({
+            name: file.originalName,
+            body: await x.Body.transformToByteArray()
+          }))
+      )
+    );
+
+    s3Files.forEach(file => this.zip.file(file.name, file.body));
+
+    const archive = await this.zip.generateAsync({
+      type: "blob"
+    });
+
+    const archiveName = `${share.id}.zip`;
+
+    await this.uploadS3Object(
+      archiveName,
+      archive.type,
+      Buffer.from(await archive.arrayBuffer())
+    );
+
+    const archiveEntity = await this.repository
+      .create({
+        name: archiveName,
+        originalName: archiveName,
+        mimeType: archive.type,
+        size: archive.size,
+        share: share
+      })
+      .save();
+
+    await this.repository.update(archiveEntity.id, {
+      downloadLink: archiveEntity.downloadLink
+    });
+
+    return archiveEntity;
   }
 }

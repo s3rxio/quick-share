@@ -9,7 +9,7 @@ import { Share } from "./share.entity";
 import { FindManyOptions, LessThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import ms from "ms";
-import { Request } from "express";
+import { Request, Response } from "express";
 
 @Injectable()
 export class SharesService implements OnApplicationBootstrap {
@@ -79,9 +79,31 @@ export class SharesService implements OnApplicationBootstrap {
       throw new NotFoundException();
     }
 
-    share.files.map(async file => await this.filesService.delete(file.id));
+    if (share.archive) {
+      share.files.push(share.archive);
+    }
+
+    await Promise.all(
+      share.files.map(file => this.filesService.delete(file.id))
+    );
 
     return this.repository.delete({ id });
+  }
+
+  async download(id: string, res: Response) {
+    const share = await this.findOneOrFail(id);
+
+    if (share.files.length === 1) {
+      return res.redirect(share.files[0].downloadLink);
+    }
+
+    if (!share.archive) {
+      share.archive = await this.filesService.createArchive(share.files, share);
+
+      await this.repository.update({ id }, { archive: share.archive });
+    }
+
+    return res.redirect(share.archive.downloadLink);
   }
 
   async cleanup() {
