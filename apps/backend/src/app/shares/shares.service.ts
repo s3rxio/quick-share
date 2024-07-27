@@ -8,20 +8,24 @@ import {
 import { Share } from "./share.entity";
 import { FindManyOptions, LessThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import ms from "ms";
 import { Request, Response } from "express";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class SharesService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Share) private readonly repository: Repository<Share>,
-    private readonly filesService: FilesService
+    private readonly filesService: FilesService,
+    private readonly configService: ConfigService
   ) {}
 
   async onApplicationBootstrap() {
     await this.cleanup();
 
-    setInterval(async () => await this.cleanup(), ms("12h"));
+    setInterval(
+      async () => await this.cleanup(),
+      this.configService.get<number>("api.share.expiration.max")
+    );
   }
 
   async findAll(options: FindManyOptions<Share>) {
@@ -38,7 +42,10 @@ export class SharesService implements OnApplicationBootstrap {
 
   async upload(files: Express.Multer.File[], req: Request) {
     const share = this.repository.create({
-      expiresAt: new Date(Date.now() + ms("12h")),
+      expiresAt: new Date(
+        Date.now() +
+          this.configService.get<number>("api.share.expiration.default")
+      ),
       user: req["user"]
     });
 

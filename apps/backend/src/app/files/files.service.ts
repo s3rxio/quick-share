@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Config, S3Config } from "~/types";
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnApplicationBootstrap
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectS3, S3 } from "nestjs-s3";
 import { Repository } from "typeorm";
@@ -9,16 +15,54 @@ import { Share } from "@/shares/share.entity";
 import { ConfigService } from "@nestjs/config";
 import JsZip from "jszip";
 import { Readable } from "node:stream";
+import ms from "ms";
 
 @Injectable()
-export class FilesService {
+export class FilesService implements OnApplicationBootstrap {
   private readonly zip = new JsZip();
 
   constructor(
     @InjectRepository(File) private readonly repository: Repository<File>,
     @InjectS3() private readonly s3: S3,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService<Config>
   ) {}
+
+  async onApplicationBootstrap() {
+    const bucketName = this.configService.get("s3.bucketName", { infer: true });
+
+    try {
+      const maxExpitration =
+        this.configService.get("api.share.expiration.max", {
+          infer: true
+        }) / ms("1d");
+      const oneDay = 1;
+      const expitration =
+        maxExpitration >= oneDay ? Math.trunc(maxExpitration) : oneDay;
+
+      await this.s3
+        .getBucketLocation({ Bucket: bucketName })
+        .catch(() => this.createBucket(bucketName, expitration));
+
+      const {
+        Rules: [lifecycleRule]
+      } = await this.s3.getBucketLifecycleConfiguration({
+        Bucket: bucketName
+      });
+
+      if (lifecycleRule.Expiration.Days !== expitration) {
+        await this.putBucketExpiration(
+          bucketName,
+          expitration,
+          lifecycleRule.ID
+        );
+
+        Logger.log("Updated S3 bucket expiration");
+      }
+    } catch (error) {
+      Logger.error("Failed to connect or configure S3 bucket");
+      throw error;
+    }
+  }
 
   async findOneOrFail(id: string) {
     const file = await this.repository.findOneBy({ id });
@@ -75,16 +119,67 @@ export class FilesService {
     const file = await this.findOneOrFail(id);
 
     await this.s3.deleteObject({
-      Bucket: this.configService.get<string>("s3.bucketName"),
+      Bucket: this.configService.get("s3.bucketName", { infer: true }),
       Key: file.name
     });
 
     return this.repository.delete({ id });
   }
 
+  private async createBucket(name: string, expitration = 1) {
+    await this.s3.createBucket({
+      Bucket: name,
+      ACL: "public-read"
+    });
+
+    await this.putBucketExpiration(name, expitration);
+
+    await this.s3.putBucketPolicy({
+      Bucket: name,
+      Policy: JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Sid: "PublicReadGetObject",
+            Effect: "Allow",
+            Principal: {
+              AWS: ["*"]
+            },
+            Action: ["s3:GetObject"],
+            Resource: [`arn:aws:s3:::${name}/*`]
+          }
+        ]
+      })
+    });
+  }
+
+  private putBucketExpiration(
+    bucketName: string,
+    expitration?: number,
+    id?: string
+  ) {
+    return this.s3.putBucketLifecycleConfiguration({
+      Bucket: bucketName,
+      LifecycleConfiguration: {
+        Rules: [
+          {
+            ID: id,
+            Status: "Enabled",
+            Filter: {
+              Prefix: "/"
+            },
+            Expiration: {
+              Days: expitration
+            }
+          }
+        ]
+      }
+    });
+  }
+
   private getS3Object(key: string) {
     return this.s3.getObject({
-      Bucket: this.configService.get<string>("s3.bucketName"),
+      Bucket: this.configService.get("s3.bucketName", { infer: true }),
       Key: key
     });
   }
@@ -95,7 +190,7 @@ export class FilesService {
     body: string | Uint8Array | Buffer | Readable | ReadableStream | Blob
   ) {
     return this.s3.putObject({
-      Bucket: this.configService.get<string>("s3.bucketName"),
+      Bucket: this.configService.get("s3.bucketName", { infer: true }),
       Key: key,
       Body: body,
       ContentType: contentType,
@@ -104,8 +199,7 @@ export class FilesService {
   }
 
   private getS3ObjectUrl(key: string) {
-    const endpoint = this.configService.get<string>("s3.endpoint");
-    const bucketName = this.configService.get<string>("s3.bucketName");
+    const { endpoint, bucketName } = this.configService.get<S3Config>("s3");
 
     return new URL(`${endpoint}/${bucketName}/${key}`).toString();
   }

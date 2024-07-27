@@ -2,6 +2,7 @@ import { User } from "@/users/user.entity";
 import { S3ClientConfig } from "@aws-sdk/client-s3";
 import { JwtModuleOptions } from "@nestjs/jwt";
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { StringValue } from "ms";
 import { BaseEntity, FindOptionsWhere } from "typeorm";
 
 export type Where<E extends BaseEntity> = FindOptionsWhere<E>;
@@ -28,6 +29,8 @@ export type PaginatedResponse<T> = {
   total: number;
 };
 
+export type MsLikeTime = StringValue;
+
 export interface ApiConfig {
   host: string;
   port: number;
@@ -35,6 +38,12 @@ export interface ApiConfig {
   root: {
     username: string;
     password: string;
+  };
+  share: {
+    expiration: {
+      default: number;
+      max: number;
+    };
   };
 }
 

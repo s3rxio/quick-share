@@ -1,3 +1,4 @@
+import { MsLikeTime } from "~/types/index";
 export {};
 
 declare global {
@@ -8,8 +9,12 @@ declare global {
       API_HOST?: string;
       API_PORT?: string;
       API_URL?: string;
+
       API_ROOT_USERNAME?: string;
       API_ROOT_PASSWORD?: string;
+
+      API_SHARE_EXPIRATION_DEFAULT?: MsLikeTime;
+      API_SHARE_EXPIRATION_MAX?: MsLikeTime;
 
       DB_HOST?: string;
       DB_PORT?: string;

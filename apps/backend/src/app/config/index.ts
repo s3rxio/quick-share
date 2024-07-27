@@ -1,6 +1,7 @@
 import { File } from "@/files/file.entity";
 import { Share } from "@/shares/share.entity";
 import { User } from "@/users/user.entity";
+import ms from "ms";
 import { Config } from "~/types";
 
 export const staticConfig = {
@@ -14,12 +15,16 @@ export const staticConfig = {
 export const getConfig = (): Config => ({
   env: process.env.NODE_ENV || "development",
   api: {
-    host: process.env.API_HOST || "localhost",
-    port: parseInt(process.env.API_PORT, 10) || 3000,
-    url: process.env.API_URL || `http://localhost:3000/api`,
+    ...staticConfig.api,
     root: {
       username: process.env.API_ROOT_USERNAME || "root",
       password: process.env.API_ROOT_PASSWORD || "rootPass123"
+    },
+    share: {
+      expiration: {
+        default: ms(process.env.API_SHARE_EXPIRATION_DEFAULT || "12h"),
+        max: ms(process.env.API_SHARE_EXPIRATION_MAX || "7d")
+      }
     }
   },
   db: {

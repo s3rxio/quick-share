@@ -51,8 +51,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       ms:
-        specifier: ^2.1.3
-        version: 2.1.3
+        specifier: 3.0.0-beta.2
+        version: 3.0.0-beta.2
       nestjs-s3:
         specifier: ^2.0.1
         version: 2.0.1(@aws-sdk/client-s3@3.616.0)(@nestjs/common@10.3.9(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(reflect-metadata@0.1.14)(rxjs@7.8.1))
@@ -5008,6 +5008,10 @@ packages:
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  ms@3.0.0-beta.2:
+    resolution: {integrity: sha512-G/4X0GjOFFpeGVj0D/yxd7plnMjizeLa2mBu2yNRPQlDlvmERfqZ2alTIijo9QNH91b9g1IlJAYsVV1g6GbWvg==}
+    engines: {node: '>=12.13'}
 
   multer@1.4.4-lts.1:
     resolution: {integrity: sha512-WeSGziVj6+Z2/MwQo3GvqzgR+9Uc+qt8SwHKh3gvNPiISKfsMfG4SvCOFYlxxgkXt7yIV2i1yczehm0EOKIxIg==}
@@ -13466,6 +13470,8 @@ snapshots:
   ms@2.1.2: {}
 
   ms@2.1.3: {}
+
+  ms@3.0.0-beta.2: {}
 
   multer@1.4.4-lts.1:
     dependencies:
