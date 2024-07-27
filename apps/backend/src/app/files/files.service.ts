@@ -41,7 +41,11 @@ export class FilesService implements OnApplicationBootstrap {
 
       await this.s3
         .getBucketLocation({ Bucket: bucketName })
-        .catch(() => this.createBucket(bucketName, expitration));
+        .catch(() =>
+          this.createBucket(bucketName, expitration).then(() =>
+            Logger.log(`Created S3 bucket ${bucketName}`)
+          )
+        );
 
       const {
         Rules: [lifecycleRule]
