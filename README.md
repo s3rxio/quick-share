@@ -73,6 +73,6 @@ git clone https://github.com/s3rxio/quick-share.git # Клонируем реп�
 cd quick-share
 pnpm install # Устанавливаем зависимости
 cp apps/backend/.env.example apps/backend/.env # создаем .env и дальше в нем настраиваем все по своему вкусу
-nx run backend --prod # Запускаем API
-nx run frontend --prod # Запускаем Web
+nx serve backend --prod # Запускаем API
+nx serve frontend --prod # Запускаем Web
 ```
