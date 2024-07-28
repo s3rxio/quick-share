@@ -106,6 +106,10 @@ export class UsersService implements OnApplicationBootstrap {
       { email: dto.email || "" }
     );
 
+    if (dto.password) {
+      dto.password = await this.generateHash(dto.password);
+    }
+
     return this.repository.update({ id }, dto);
   }
 
