@@ -12,7 +12,7 @@ import { SharesModule } from "./shares/shares.module";
 import { S3Module } from "nestjs-s3";
 import { FilesModule } from "./files/files.module";
 import { getConfig } from "./config";
-import { DbConfig, S3Config } from "~/types";
+import { DbConfig, S3Config } from "@backend/common/types";
 
 @Module({
   imports: [

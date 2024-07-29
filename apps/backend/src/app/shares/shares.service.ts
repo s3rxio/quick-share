@@ -1,4 +1,3 @@
-import { FilesService } from "@/files/files.service";
 import {
   Injectable,
   Logger,
@@ -10,6 +9,7 @@ import { FindManyOptions, LessThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Request, Response } from "express";
 import { ConfigService } from "@nestjs/config";
+import { FilesService } from "../files/files.service";
 
 @Injectable()
 export class SharesService implements OnApplicationBootstrap {

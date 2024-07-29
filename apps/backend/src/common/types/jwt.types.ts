@@ -1,4 +1,4 @@
-import { User } from "@/users/user.entity";
+import { User } from "@backend/app/users/user.entity";
 
 export type JwtPayload<T> = T & {
   iat: number;

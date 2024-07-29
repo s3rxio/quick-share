@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Res } from "@nestjs/common";
 import { FilesService } from "./files.service";
-import { Public } from "~/decoratos";
 import { Response } from "express";
+import { Public } from "@backend/common/decoratos";
 
 @Controller("files")
 export class FilesController {

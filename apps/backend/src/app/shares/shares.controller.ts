@@ -16,7 +16,7 @@ import { SharesService } from "./shares.service";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { SharesGuard } from "./shares.guard";
 import { Request, Response } from "express";
-import { Public } from "~/decoratos";
+import { Public } from "@backend/common/decoratos";
 
 @Controller("shares")
 export class SharesController {

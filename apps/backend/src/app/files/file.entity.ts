@@ -1,8 +1,8 @@
-import { staticConfig } from "@/config";
-import { Share } from "@/shares/share.entity";
+import { BaseEntity } from "@backend/common/entities";
 import { Exclude } from "class-transformer";
 import { AfterInsert, Column, Entity, ManyToOne } from "typeorm";
-import { BaseEntity } from "~/entities";
+import { staticConfig } from "../config";
+import { Share } from "../shares/share.entity";
 
 @Entity("files")
 export class File extends BaseEntity {

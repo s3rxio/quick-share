@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
-import { Public } from "~/decoratos";
+import { Public } from "@backend/common/decoratos";
 
 @Public()
 @Controller()

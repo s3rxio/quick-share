@@ -1,3 +1,4 @@
+import { Role } from "@backend/common/enums";
 import { Exclude } from "class-transformer";
 import {
   IsArray,
@@ -8,7 +9,6 @@ import {
   IsString,
   Length
 } from "class-validator";
-import { Role } from "~/enums";
 
 export class CreateUserDto {
   @IsString()

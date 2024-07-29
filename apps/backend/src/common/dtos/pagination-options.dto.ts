@@ -1,6 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsNumber, IsOptional } from "class-validator";
-import { toNumber } from "~/libs/transformFns";
+import { toNumber } from "../libs/transformFns";
 
 export class PaginationOptionsDto {
   @Transform(toNumber)

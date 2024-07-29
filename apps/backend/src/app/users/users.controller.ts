@@ -12,9 +12,9 @@ import {
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
-import { Roles } from "@/roles/roles.decorator";
-import { Role } from "~/enums";
 import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
+import { Role } from "@backend/common/enums";
+import { Roles } from "../roles/roles.decorator";
 
 @Roles(Role.Admin)
 @Controller("users")

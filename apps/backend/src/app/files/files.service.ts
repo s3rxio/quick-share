@@ -1,4 +1,3 @@
-import { Config, S3Config } from "~/types";
 import {
   Injectable,
   Logger,
@@ -11,11 +10,12 @@ import { Repository } from "typeorm";
 import { File } from "./file.entity";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Response } from "express";
-import { Share } from "@/shares/share.entity";
 import { ConfigService } from "@nestjs/config";
 import JsZip from "jszip";
 import { Readable } from "node:stream";
 import ms from "ms";
+import { Config, S3Config } from "@backend/common/types";
+import { Share } from "../shares/share.entity";
 
 @Injectable()
 export class FilesService implements OnApplicationBootstrap {

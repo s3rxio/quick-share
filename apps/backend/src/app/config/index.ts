@@ -1,8 +1,8 @@
-import { File } from "@/files/file.entity";
-import { Share } from "@/shares/share.entity";
-import { User } from "@/users/user.entity";
+import { Config } from "@backend/common/types";
 import ms from "ms";
-import { Config } from "~/types";
+import { Share } from "../shares/share.entity";
+import { User } from "../users/user.entity";
+import { File } from "../files/file.entity";
 
 export const staticConfig = {
   api: {

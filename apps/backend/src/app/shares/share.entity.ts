@@ -1,4 +1,3 @@
-import { User } from "@/users/user.entity";
 import {
   Column,
   DeleteDateColumn,
@@ -8,9 +7,10 @@ import {
   OneToMany,
   OneToOne
 } from "typeorm";
-import { BaseEntity } from "~/entities";
-import { File } from "@/files/file.entity";
 import { Exclude } from "class-transformer";
+import { BaseEntity } from "@backend/common/entities";
+import { File } from "../files/file.entity";
+import { User } from "../users/user.entity";
 
 @Entity("shares")
 export class Share extends BaseEntity {

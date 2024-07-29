@@ -1,5 +1,5 @@
 export type Unit = "B" | "KB" | "MB" | "GB" | "TB" | "PB";
-export type StringValue = `${number}${Unit}` | `${number} ${Unit}`;
+export type StringValue = string | `${number}${Unit}` | `${number} ${Unit}`;
 
 /**
  * Converts a string representation of a byte size to its equivalent value in bytes.

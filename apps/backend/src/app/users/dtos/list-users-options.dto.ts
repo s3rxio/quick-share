@@ -1,12 +1,12 @@
 import { IsArray, IsDateString, IsIn, IsOptional } from "class-validator";
-import { PaginationOptionsDto } from "~/dtos";
-import { SelectByString } from "~/types";
 import { User } from "../user.entity";
 import { Transform } from "class-transformer";
-import { toArray } from "~/libs/transformFns";
 import { IntersectionType } from "@nestjs/mapped-types";
 import { UpdateUserDto } from "./update-user.dto";
-import { Role } from "~/enums";
+import { PaginationOptionsDto } from "@backend/common/dtos";
+import { Role } from "@backend/common/enums";
+import { toArray } from "@backend/common/libs/transformFns";
+import { SelectByString } from "@backend/common/types";
 
 const userKeys: SelectByString<User>[] = [
   "id",

@@ -1,8 +1,8 @@
-import { Share } from "@/shares/share.entity";
+import { Role } from "@backend/common/enums";
 import { Exclude } from "class-transformer";
 import { Column, Entity, OneToMany } from "typeorm";
-import { BaseEntity } from "~/entities";
-import { Role } from "~/enums";
+import { Share } from "../shares/share.entity";
+import { BaseEntity } from "@backend/common/entities";
 
 @Entity("users")
 export class User extends BaseEntity {

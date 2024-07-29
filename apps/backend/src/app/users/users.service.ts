@@ -10,11 +10,11 @@ import { FindManyOptions, FindOneOptions, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
-import { ExceptionMessage, Role } from "~/enums";
 import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
-import { PaginatedResponse, Where } from "~/types";
 import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
+import { ExceptionMessage, Role } from "@backend/common/enums";
+import { PaginatedResponse, Where } from "@backend/common/types";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {

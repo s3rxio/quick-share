@@ -3,7 +3,7 @@ import { FilesService } from "./files.service";
 import { FilesController } from "./files.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { File } from "./file.entity";
-import { Share } from "@/shares/share.entity";
+import { Share } from "../shares/share.entity";
 
 @Module({
   providers: [FilesService],

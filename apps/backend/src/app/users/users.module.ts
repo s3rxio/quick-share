@@ -3,8 +3,8 @@ import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./user.entity";
-import { Share } from "@/shares/share.entity";
 import { UsersMeController } from "./users-me/users-me.controller";
+import { Share } from "../shares/share.entity";
 
 @Module({
   providers: [UsersService],
