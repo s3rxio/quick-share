@@ -1,28 +1,29 @@
-import { Body, Controller, Delete, Get, Patch, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Patch } from "@nestjs/common";
 import { UsersService } from "../users.service";
 import { UpdateUserDto } from "../dtos/update-user.dto";
+import { User } from "../user.decorator";
 
 @Controller("users/me")
 export class UsersMeController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  me(@Req() req: Request) {
+  me(@User("id") id: string) {
     return this.usersService.findOneOrFail({
       where: {
-        id: req["user"].id
+        id: id
       },
       relations: ["shares"]
     });
   }
 
   @Patch()
-  async updateMe(@Req() req: Request, @Body() body: UpdateUserDto) {
-    return this.usersService.update(req["user"].id, body);
+  async updateMe(@User("id") id: string, @Body() body: UpdateUserDto) {
+    return this.usersService.update(id, body);
   }
 
   @Delete()
-  async deleteMe(@Req() req: Request) {
-    return this.usersService.delete(req["user"].id);
+  async deleteMe(@User("id") id: string) {
+    return this.usersService.delete(id);
   }
 }

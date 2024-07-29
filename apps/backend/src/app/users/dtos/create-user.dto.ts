@@ -1,4 +1,4 @@
-import { Exclude, Transform } from "class-transformer";
+import { Exclude } from "class-transformer";
 import {
   IsArray,
   IsEmail,
@@ -9,7 +9,6 @@ import {
   Length
 } from "class-validator";
 import { Role } from "~/enums";
-import { toArray } from "~/libs/transformFns";
 
 export class CreateUserDto {
   @IsString()
