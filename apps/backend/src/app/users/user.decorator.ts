@@ -1,5 +1,8 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { User as UserEntity } from "./user.entity";
+import { User as BaseUserEntity } from "./user.entity";
+import { BaseEntity } from "typeorm";
+
+export type UserEntity = Omit<BaseUserEntity, keyof BaseEntity>;
 
 export type UserKeys = keyof UserEntity;
 
