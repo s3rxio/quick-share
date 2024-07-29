@@ -12,9 +12,8 @@ import { ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
 import JsZip from "jszip";
-import { Readable } from "node:stream";
 import ms from "ms";
-import { Config, S3Config } from "@backend/common/types";
+import { Config, S3Body, S3Config } from "@backend/common/types";
 import { Share } from "../shares/share.entity";
 
 @Injectable()
@@ -79,7 +78,29 @@ export class FilesService implements OnApplicationBootstrap {
   }
 
   async upload(files: Express.Multer.File[], share: Share) {
-    const filesEntities: File[] = [];
+    const uploadedFiles: File[] = [];
+
+    if (Array.isArray(share.files)) {
+      const uploadedExistingFiles = await Promise.all(
+        share.files.map(async file => {
+          const existingFile = files.find(
+            f => f.originalname === file.originalName
+          );
+
+          if (!existingFile) return;
+
+          await this.updateFile(file.id, existingFile);
+          return existingFile;
+        })
+      );
+
+      files = files.filter(
+        file =>
+          !uploadedExistingFiles.find(
+            f => f?.originalname === file.originalname
+          )
+      );
+    }
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -107,16 +128,29 @@ export class FilesService implements OnApplicationBootstrap {
         downloadLink: fileEntity.downloadLink
       });
 
-      filesEntities.push(fileEntity);
+      uploadedFiles.push(fileEntity);
     }
 
-    return filesEntities;
+    return uploadedFiles;
   }
 
   async download(id: string, res: Response) {
     const file = await this.findOneOrFail(id);
 
     res.redirect(this.getS3ObjectUrl(file.name));
+  }
+
+  async updateFile(id: string, newFile: Express.Multer.File) {
+    const file = await this.findOneOrFail(id);
+
+    await this.uploadS3Object(file.name, newFile.mimetype, newFile.buffer);
+
+    return this.repository.update(
+      { id },
+      {
+        size: newFile.size
+      }
+    );
   }
 
   async delete(id: string) {
@@ -128,6 +162,31 @@ export class FilesService implements OnApplicationBootstrap {
     });
 
     return this.repository.delete({ id });
+  }
+
+  async createArchive(files: File[], shareId: string) {
+    const s3Files = await Promise.all(
+      files.map(
+        async file =>
+          await this.getS3Object(file.name).then(async x => ({
+            name: file.originalName,
+            body: await x.Body.transformToByteArray()
+          }))
+      )
+    );
+
+    s3Files.forEach(file => this.zip.file(file.name, file.body));
+
+    const archiveBlob = await this.zip.generateAsync({
+      type: "blob"
+    });
+
+    return {
+      name: `${shareId}.zip`,
+      mimeType: archiveBlob.type,
+      size: archiveBlob.size,
+      arrayBuffer: await archiveBlob.arrayBuffer()
+    };
   }
 
   private async createBucket(name: string, expitration = 1) {
@@ -188,11 +247,7 @@ export class FilesService implements OnApplicationBootstrap {
     });
   }
 
-  private uploadS3Object(
-    key: string,
-    contentType: string,
-    body: string | Uint8Array | Buffer | Readable | ReadableStream | Blob
-  ) {
+  private uploadS3Object(key: string, contentType: string, body: S3Body) {
     return this.s3.putObject({
       Bucket: this.configService.get("s3.bucketName", { infer: true }),
       Key: key,
@@ -206,47 +261,5 @@ export class FilesService implements OnApplicationBootstrap {
     const { endpoint, bucketName } = this.configService.get<S3Config>("s3");
 
     return new URL(`${endpoint}/${bucketName}/${key}`).toString();
-  }
-
-  async createArchive(files: File[], share: Share): Promise<File> {
-    const s3Files = await Promise.all(
-      files.map(
-        async file =>
-          await this.getS3Object(file.name).then(async x => ({
-            name: file.originalName,
-            body: await x.Body.transformToByteArray()
-          }))
-      )
-    );
-
-    s3Files.forEach(file => this.zip.file(file.name, file.body));
-
-    const archive = await this.zip.generateAsync({
-      type: "blob"
-    });
-
-    const archiveName = `${share.id}.zip`;
-
-    await this.uploadS3Object(
-      archiveName,
-      archive.type,
-      Buffer.from(await archive.arrayBuffer())
-    );
-
-    const archiveEntity = await this.repository
-      .create({
-        name: archiveName,
-        originalName: archiveName,
-        mimeType: archive.type,
-        size: archive.size,
-        share: share
-      })
-      .save();
-
-    await this.repository.update(archiveEntity.id, {
-      downloadLink: archiveEntity.downloadLink
-    });
-
-    return archiveEntity;
   }
 }

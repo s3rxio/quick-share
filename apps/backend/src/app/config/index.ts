@@ -1,4 +1,5 @@
 import { Config } from "@backend/common/types";
+import { inB } from "@quick-share/inb";
 import ms from "ms";
 import { Share } from "../shares/share.entity";
 import { User } from "../users/user.entity";
@@ -8,7 +9,8 @@ export const staticConfig = {
   api: {
     host: process.env.API_HOST || "localhost",
     port: parseInt(process.env.API_PORT, 10) || 3000,
-    url: process.env.API_URL || `http://localhost:3000/api`
+    url: process.env.API_URL || `http://localhost:3000/api`,
+    maxUploadSize: inB(process.env.API_MAX_UPLOAD_SIZE || "1GB")
   }
 };
 

@@ -6,8 +6,8 @@ import {
   ParseFilePipeBuilder,
   ParseUUIDPipe,
   Post,
-  Req,
   Res,
+  SerializeOptions,
   UploadedFiles,
   UseGuards,
   UseInterceptors
@@ -15,8 +15,11 @@ import {
 import { SharesService } from "./shares.service";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { SharesGuard } from "./shares.guard";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { Public } from "@backend/common/decoratos";
+import { staticConfig } from "../config";
+import { User } from "../users/user.decorator";
+import { User as UserEntity } from "../users/user.entity";
 
 @Controller("shares")
 export class SharesController {
@@ -34,22 +37,28 @@ export class SharesController {
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({
-          maxSize: 1000 * 1000 * 115
+          maxSize: staticConfig.api.maxUploadSize
         })
         .build({
           fileIsRequired: true
         })
     )
     files: Express.Multer.File[],
-    @Req()
-    req: Request
+    @User()
+    user: UserEntity
   ) {
-    return this.sharesService.upload(files, req);
+    return this.sharesService.upload(files, user);
   }
 
   @Public()
+  @SerializeOptions({
+    groups: ["default"]
+  })
   @Get(":id/download")
-  async download(@Param("id", ParseUUIDPipe) id: string, @Res() res: Response) {
+  async download(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
     return this.sharesService.download(id, res);
   }
 
@@ -57,5 +66,34 @@ export class SharesController {
   @Delete(":id")
   async delete(@Param("id", ParseUUIDPipe) id: string) {
     return this.sharesService.delete(id);
+  }
+
+  @UseGuards(SharesGuard)
+  @Post(":id/files")
+  @UseInterceptors(FilesInterceptor("files"))
+  async addFiles(
+    @UploadedFiles(
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({
+          maxSize: staticConfig.api.maxUploadSize
+        })
+        .build({
+          fileIsRequired: true
+        })
+    )
+    files: Express.Multer.File[],
+    @Param("id", ParseUUIDPipe)
+    id: string
+  ) {
+    return this.sharesService.addFiles(id, files);
+  }
+
+  @UseGuards(SharesGuard)
+  @Delete(":id/files/:fileId")
+  async deleteFile(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("fileId", ParseUUIDPipe) fileId: string
+  ) {
+    return this.sharesService.deleteFile(id, fileId);
   }
 }

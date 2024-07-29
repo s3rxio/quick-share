@@ -7,9 +7,10 @@ import {
 import { Share } from "./share.entity";
 import { FindManyOptions, LessThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
 import { FilesService } from "../files/files.service";
+import { User } from "../users/user.entity";
 
 @Injectable()
 export class SharesService implements OnApplicationBootstrap {
@@ -40,13 +41,13 @@ export class SharesService implements OnApplicationBootstrap {
     });
   }
 
-  async upload(files: Express.Multer.File[], req: Request) {
+  async upload(files: Express.Multer.File[], user: User) {
     const share = this.repository.create({
       expiresAt: new Date(
         Date.now() +
           this.configService.get<number>("api.share.expiration.default")
       ),
-      user: req["user"]
+      user
     });
 
     const filesEntities = await this.filesService.upload(files, share);
@@ -86,10 +87,6 @@ export class SharesService implements OnApplicationBootstrap {
       throw new NotFoundException();
     }
 
-    if (share.archive) {
-      share.files.push(share.archive);
-    }
-
     await Promise.all(
       share.files.map(file => this.filesService.delete(file.id))
     );
@@ -104,13 +101,42 @@ export class SharesService implements OnApplicationBootstrap {
       return res.redirect(share.files[0].downloadLink);
     }
 
-    if (!share.archive) {
-      share.archive = await this.filesService.createArchive(share.files, share);
+    const archive = await this.filesService.createArchive(
+      share.files,
+      share.id
+    );
 
-      await this.repository.update({ id }, { archive: share.archive });
+    res
+      .attachment(archive.name)
+      .contentType(archive.mimeType)
+      .send(Buffer.from(archive.arrayBuffer));
+
+    return;
+  }
+
+  async addFiles(id: string, files: Express.Multer.File[]) {
+    const share = await this.findOneOrFail(id);
+
+    const uploadedFiles = await this.filesService.upload(files, share);
+    share.reload();
+    share.files.push(...uploadedFiles);
+
+    return share.save();
+  }
+
+  async deleteFile(id: string, fileId: string) {
+    const share = await this.findOneOrFail(id);
+    const file = share.files.find(f => f.id === fileId);
+
+    if (!file) {
+      throw new NotFoundException();
     }
 
-    return res.redirect(share.archive.downloadLink);
+    await this.filesService.delete(fileId);
+
+    share.reload();
+
+    return share.save();
   }
 
   async cleanup() {

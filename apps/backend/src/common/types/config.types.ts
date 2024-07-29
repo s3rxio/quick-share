@@ -16,6 +16,7 @@ export interface ApiConfig {
       max: number;
     };
   };
+  maxUploadSize: number;
 }
 
 export type DbConfig = TypeOrmModuleOptions;
