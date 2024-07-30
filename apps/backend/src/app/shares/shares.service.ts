@@ -106,10 +106,7 @@ export class SharesService implements OnApplicationBootstrap {
       share.id
     );
 
-    res
-      .attachment(archive.name)
-      .contentType(archive.mimeType)
-      .send(Buffer.from(archive.arrayBuffer));
+    res.attachment(archive.name).send(archive.buffer);
 
     return;
   }

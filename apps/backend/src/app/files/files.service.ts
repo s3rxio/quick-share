@@ -177,15 +177,13 @@ export class FilesService implements OnApplicationBootstrap {
 
     s3Files.forEach(file => this.zip.file(file.name, file.body));
 
-    const archiveBlob = await this.zip.generateAsync({
-      type: "blob"
+    const archiveBuffer = await this.zip.generateAsync({
+      type: "nodebuffer"
     });
 
     return {
       name: `${shareId}.zip`,
-      mimeType: archiveBlob.type,
-      size: archiveBlob.size,
-      arrayBuffer: await archiveBlob.arrayBuffer()
+      buffer: archiveBuffer
     };
   }
 
