@@ -7,7 +7,6 @@ import {
   ParseUUIDPipe,
   Post,
   Res,
-  SerializeOptions,
   UploadedFiles,
   UseGuards,
   UseInterceptors
@@ -51,9 +50,6 @@ export class SharesController {
   }
 
   @Public()
-  @SerializeOptions({
-    groups: ["default"]
-  })
   @Get(":id/download")
   async download(
     @Param("id", ParseUUIDPipe) id: string,
