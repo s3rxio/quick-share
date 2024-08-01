@@ -87,11 +87,7 @@ export class SharesService implements OnApplicationBootstrap {
       throw new NotFoundException();
     }
 
-    await Promise.all(
-      share.files.map(file => this.filesService.delete(file.id))
-    );
-
-    return this.repository.delete({ id });
+    return this.repository.remove(share);
   }
 
   async download(id: string, res: Response) {
@@ -123,20 +119,15 @@ export class SharesService implements OnApplicationBootstrap {
 
   async deleteFile(id: string, fileId: string) {
     const share = await this.findOneOrFail(id);
-    const file = share.files.find(f => f.id === fileId);
-
-    if (!file) {
-      throw new NotFoundException();
-    }
 
     await this.filesService.delete(fileId);
 
     share.reload();
 
-    return share.save();
+    return share;
   }
 
-  async cleanup() {
+  private async cleanup() {
     Logger.log("Cleaning up expired shares...");
     const shares = await this.findAllExpired();
 

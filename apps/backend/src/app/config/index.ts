@@ -37,7 +37,8 @@ export const getConfig = (): Config => ({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [User, Share, File],
-    synchronize: true
+    synchronize: true,
+    cache: true
   },
   jwt: {
     global: true,

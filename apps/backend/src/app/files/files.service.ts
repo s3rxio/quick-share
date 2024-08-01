@@ -124,10 +124,7 @@ export class FilesService implements OnApplicationBootstrap {
 
       await this.uploadS3Object(fileEntity.name, file.mimetype, file.buffer);
 
-      this.repository.update(fileEntity.id, {
-        downloadLink: fileEntity.downloadLink
-      });
-
+      fileEntity.reload();
       uploadedFiles.push(fileEntity);
     }
 
@@ -156,12 +153,7 @@ export class FilesService implements OnApplicationBootstrap {
   async delete(id: string) {
     const file = await this.findOneOrFail(id);
 
-    await this.s3.deleteObject({
-      Bucket: this.configService.get("s3.bucketName", { infer: true }),
-      Key: file.name
-    });
-
-    return this.repository.delete({ id });
+    return this.repository.remove(file);
   }
 
   async createArchive(files: File[], shareId: string) {
@@ -238,7 +230,7 @@ export class FilesService implements OnApplicationBootstrap {
     });
   }
 
-  private getS3Object(key: string) {
+  public getS3Object(key: string) {
     return this.s3.getObject({
       Bucket: this.configService.get("s3.bucketName", { infer: true }),
       Key: key
@@ -252,6 +244,13 @@ export class FilesService implements OnApplicationBootstrap {
       Body: body,
       ContentType: contentType,
       ACL: ObjectCannedACL.public_read
+    });
+  }
+
+  deleteS3Object(key: string) {
+    return this.s3.deleteObject({
+      Bucket: this.configService.get("s3.bucketName", { infer: true }),
+      Key: key
     });
   }
 

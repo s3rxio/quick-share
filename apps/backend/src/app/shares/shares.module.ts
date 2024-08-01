@@ -5,9 +5,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Share } from "./share.entity";
 import { FilesModule } from "../files/files.module";
 import { File } from "../files/file.entity";
+import { ShareSubscriber } from "./share.subscriber";
 
 @Module({
-  providers: [SharesService],
+  providers: [SharesService, ShareSubscriber],
   controllers: [SharesController],
   imports: [TypeOrmModule.forFeature([Share, File]), FilesModule],
   exports: [TypeOrmModule]

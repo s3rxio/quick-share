@@ -1,7 +1,6 @@
 import { BaseEntity } from "@backend/common/entities";
 import { Exclude } from "class-transformer";
-import { AfterInsert, Column, Entity, ManyToOne } from "typeorm";
-import { staticConfig } from "../config";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Share } from "../shares/share.entity";
 
 @Entity("files")
@@ -28,15 +27,11 @@ export class File extends BaseEntity {
 
   @ManyToOne(() => Share, share => share.files, {
     nullable: true,
-    createForeignKeyConstraints: false
+    onDelete: "CASCADE"
+  })
+  @JoinColumn({
+    name: "shareId"
   })
   @Exclude()
   share: Share;
-
-  @AfterInsert()
-  afterInsertActions() {
-    this.downloadLink = new URL(
-      `${staticConfig.api.url}/files/${this.id}/download`
-    ).toString();
-  }
 }
