@@ -80,7 +80,7 @@ export class FilesService implements OnApplicationBootstrap {
   async upload(files: Express.Multer.File[], share: Share) {
     const uploadedFiles: File[] = [];
 
-    if (Array.isArray(share.files)) {
+    if (share.files?.length > 0) {
       const uploadedExistingFiles = await Promise.all(
         share.files.map(async file => {
           const existingFile = files.find(
@@ -181,8 +181,7 @@ export class FilesService implements OnApplicationBootstrap {
 
   private async createBucket(name: string, expitration = 1) {
     await this.s3.createBucket({
-      Bucket: name,
-      ACL: "public-read"
+      Bucket: name
     });
 
     await this.putBucketExpiration(name, expitration);
