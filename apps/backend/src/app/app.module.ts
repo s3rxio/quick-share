@@ -13,6 +13,7 @@ import { S3Module } from "nestjs-s3";
 import { FilesModule } from "./files/files.module";
 import { getConfig } from "./config";
 import { DbConfig, S3Config } from "@backend/common/types";
+import { ResponseInterceptor } from "@backend/common/interceptors";
 
 @Module({
   imports: [
@@ -56,6 +57,10 @@ import { DbConfig, S3Config } from "@backend/common/types";
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
     }
   ]
 })

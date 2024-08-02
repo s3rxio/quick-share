@@ -3,3 +3,4 @@ export * from "./typeorm.types";
 export * from "./jwt.types";
 export * from "./config.types";
 export * from "./s3.types";
+export * from "./response.types";

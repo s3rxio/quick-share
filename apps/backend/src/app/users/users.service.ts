@@ -14,7 +14,7 @@ import { ListUsersOptionsDto } from "./dtos/list-users-options.dto";
 import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
 import { ExceptionMessage, Role } from "@backend/common/enums";
-import { PaginatedResponse, Where } from "@backend/common/types";
+import { Where, PaginatedData } from "@backend/common/types";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {
@@ -29,7 +29,7 @@ export class UsersService implements OnApplicationBootstrap {
 
   async findAll(
     options?: FindManyOptions<User> | ListUsersOptionsDto
-  ): Promise<PaginatedResponse<User>> {
+  ): Promise<PaginatedData<User>> {
     const { skip, take, order: orderOption, select, ...rest } = options;
 
     const isDto = options instanceof ListUsersOptionsDto;
@@ -114,9 +114,9 @@ export class UsersService implements OnApplicationBootstrap {
   }
 
   async delete(id: string) {
-    await this.findOneByIdOrFail(id);
+    const user = await this.findOneByIdOrFail(id);
 
-    return this.repository.delete({ id });
+    await this.repository.remove(user);
   }
 
   async existByOrFail(...where: Where<User>[]) {

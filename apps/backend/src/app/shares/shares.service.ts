@@ -87,7 +87,7 @@ export class SharesService implements OnApplicationBootstrap {
       throw new NotFoundException();
     }
 
-    return this.repository.remove(share);
+    await this.repository.remove(share);
   }
 
   async download(id: string, res: Response) {

@@ -11,8 +11,3 @@ export type SelectByString<E extends BaseEntity> = keyof Omit<
   E,
   keyof BaseEntity
 >;
-
-export type PaginatedResponse<T> = {
-  items: T[];
-  total: number;
-};

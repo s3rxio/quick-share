@@ -15,9 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@quick-share/inb": ["libs/inb/src/index.ts"],
       "@backend/*": ["apps/backend/src/*"],
-      "@frontend/*": ["apps/frontend/src/*"]
+      "@frontend/*": ["apps/frontend/src/*"],
+      "@quick-share/inb": ["libs/inb/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
