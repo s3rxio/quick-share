@@ -23,20 +23,30 @@ export class ResponseInterceptor<T>
 
   generateResponse<T extends Record<string, unknown>>(
     statusCode: HttpStatus,
-    data: T
+    data?: T
   ): BaseResponse<T> {
-    const message = Object.keys(HttpStatus)
-      .find(key => HttpStatus[key] === statusCode)
-      .split("_")
-      .join(" ");
+    const message =
+      typeof data === "string"
+        ? data
+        : Object.keys(HttpStatus)
+            .find(key => HttpStatus[key] === statusCode)
+            .split("_")
+            .join(" ");
 
     const res = {
       statusCode,
       message
     };
 
+    if (!data || typeof data === "string") {
+      return res;
+    }
+
     const isPaginated =
-      Array.isArray(data.items) && parseInt(data.total as never, 10);
+      typeof data === "object" &&
+      Array.isArray(data.items) &&
+      parseInt(data.total as string, 10);
+
     if (isPaginated) {
       return {
         ...res,
