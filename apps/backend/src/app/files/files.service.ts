@@ -124,7 +124,7 @@ export class FilesService implements OnApplicationBootstrap {
 
       await this.uploadS3Object(fileEntity.name, file.mimetype, file.buffer);
 
-      fileEntity.reload();
+      await fileEntity.reload();
       uploadedFiles.push(fileEntity);
     }
 

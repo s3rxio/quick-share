@@ -34,10 +34,10 @@ export class FileSubscriber implements EntitySubscriberInterface<File> {
   }
 
   /* 
-    Doesn't work if deleted in cascade
-    https://github.com/typeorm/typeorm/issues/4419
+    Doesn't work if removed by cascade
+    https://github.com/typeorm/typeorm/issues/4419#issuecomment-526835140
   */
-  beforeRemove(event: RemoveEvent<File>) {
+  afterRemove(event: RemoveEvent<File>) {
     const entity = event.entity || event.databaseEntity;
 
     if (!entity) {

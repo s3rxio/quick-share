@@ -110,9 +110,8 @@ export class SharesService implements OnApplicationBootstrap {
   async addFiles(id: string, files: Express.Multer.File[]) {
     const share = await this.findOneOrFail(id);
 
-    const uploadedFiles = await this.filesService.upload(files, share);
-    share.reload();
-    share.files.push(...uploadedFiles);
+    await this.filesService.upload(files, share);
+    await share.reload();
 
     return share.save();
   }
@@ -121,8 +120,7 @@ export class SharesService implements OnApplicationBootstrap {
     const share = await this.findOneOrFail(id);
 
     await this.filesService.delete(fileId);
-
-    share.reload();
+    await share.reload();
 
     return share;
   }
