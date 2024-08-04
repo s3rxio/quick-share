@@ -1,5 +1,6 @@
 import { HttpStatus } from "@nestjs/common";
 import { ResponseInterceptor } from "./response.interceptor";
+import { PaginationResponse } from "@backend/common/dtos/pagination-response.dto";
 
 describe("ResponseInterceptor", () => {
   const interceptor = new ResponseInterceptor();
@@ -16,14 +17,27 @@ describe("ResponseInterceptor", () => {
 
   it("should generate paginated response", () => {
     expect(
-      interceptor.generateResponse(HttpStatus.OK, {
-        items: [],
-        total: 0
-      })
+      interceptor.generateResponse(
+        HttpStatus.OK,
+        new PaginationResponse([1, 2, 3], 3)
+      )
     ).toEqual({
       message: "OK",
-      items: [],
-      total: 0
+      items: [1, 2, 3],
+      total: 3
+    });
+  });
+
+  it("should generate paginated response without total", () => {
+    expect(
+      interceptor.generateResponse(
+        HttpStatus.OK,
+        new PaginationResponse([1, 2, 3])
+      )
+    ).toEqual({
+      message: "OK",
+      items: [1, 2, 3],
+      total: 3
     });
   });
 

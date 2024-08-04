@@ -15,6 +15,7 @@ import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
 import { ExceptionMessage, Role } from "@backend/common/enums";
 import { Where, PaginatedData } from "@backend/common/types";
+import { PaginationResponse } from "@backend/common/dtos";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {
@@ -56,10 +57,7 @@ export class UsersService implements OnApplicationBootstrap {
       ...restOptions
     });
 
-    return {
-      items: users,
-      total: count
-    };
+    return new PaginationResponse<User>(users, count);
   }
 
   async findOne(options: FindOneOptions<User>) {

@@ -1,3 +1,4 @@
+import { PaginationResponse } from "@backend/common/dtos/pagination-response.dto";
 import { BaseResponse } from "@backend/common/types";
 import {
   CallHandler,
@@ -39,13 +40,10 @@ export class ResponseInterceptor<T>
       return res;
     }
 
-    const isPaginated = typeof data === "object" && Array.isArray(data.items);
-
-    if (isPaginated) {
+    if (data instanceof PaginationResponse) {
       return {
         ...res,
-        ...data,
-        total: data.total || data.items.length
+        ...data
       };
     }
 
