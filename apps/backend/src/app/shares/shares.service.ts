@@ -11,6 +11,9 @@ import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
 import { FilesService } from "../files/files.service";
 import { User } from "../users/user.entity";
+import { Interval } from "@nestjs/schedule";
+import { getConfig } from "../config";
+import { SharesCleanupTask } from "./shares.const";
 
 @Injectable()
 export class SharesService implements OnApplicationBootstrap {
@@ -22,11 +25,6 @@ export class SharesService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.cleanup();
-
-    setInterval(
-      async () => await this.cleanup(),
-      this.configService.get<number>("share.expiration.max")
-    );
   }
 
   async findAll(options: FindManyOptions<Share>) {
@@ -124,6 +122,7 @@ export class SharesService implements OnApplicationBootstrap {
     return share;
   }
 
+  @Interval(SharesCleanupTask, getConfig().share.expiration.default)
   private async cleanup() {
     Logger.log("Cleaning up expired shares...");
     const shares = await this.findAllExpired();

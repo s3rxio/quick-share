@@ -14,6 +14,7 @@ import { FilesModule } from "./files/files.module";
 import { getConfig } from "./config";
 import { DbConfig, S3Config } from "@backend/common/types";
 import { ResponseInterceptor } from "@backend/common/interceptors";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ResponseInterceptor } from "@backend/common/interceptors";
       }),
       inject: [ConfigService]
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     SharesModule,
