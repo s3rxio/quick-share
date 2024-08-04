@@ -18,7 +18,12 @@ import { ResponseInterceptor } from "@backend/common/interceptors";
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: [`.env.${process.env.NODE_ENV}`, `.env`, `.env.local`],
+      envFilePath: [
+        `${process.env.QCKSHARE_ENV_PATH}`,
+        `.env.${process.env.NODE_ENV}`,
+        `.env`,
+        `.env.local`
+      ],
       load: [getConfig],
       isGlobal: true
     }),
