@@ -17,6 +17,8 @@ import { SharesCleanupTask } from "./shares.const";
 
 @Injectable()
 export class SharesService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(SharesService.name);
+
   constructor(
     @InjectRepository(Share) private readonly repository: Repository<Share>,
     private readonly filesService: FilesService,
@@ -40,17 +42,20 @@ export class SharesService implements OnApplicationBootstrap {
   }
 
   async upload(files: Express.Multer.File[], user: User) {
-    const share = this.repository.create({
-      expiresAt: new Date(
-        Date.now() + this.configService.get<number>("share.expiration.default")
-      ),
-      user
-    });
+    const share = await this.repository
+      .create({
+        expiresAt: new Date(
+          Date.now() +
+            this.configService.get<number>("share.expiration.default")
+        ),
+        user
+      })
+      .save();
 
-    const filesEntities = await this.filesService.upload(files, share);
-    share.files = filesEntities;
+    await this.filesService.upload(files, share);
+    await share.reload();
 
-    return this.repository.save(share);
+    return share;
   }
 
   async findOne(id: string) {
@@ -110,7 +115,7 @@ export class SharesService implements OnApplicationBootstrap {
     await this.filesService.upload(files, share);
     await share.reload();
 
-    return share.save();
+    return share;
   }
 
   async deleteFile(id: string, fileId: string) {
@@ -124,13 +129,13 @@ export class SharesService implements OnApplicationBootstrap {
 
   @Interval(SharesCleanupTask, getConfig().share.expiration.default)
   private async cleanup() {
-    Logger.log("Cleaning up expired shares...");
+    this.logger.log("Cleaning up expired shares...");
     const shares = await this.findAllExpired();
 
     for (let i = 0; i < shares.length; i++) {
       await this.delete(shares[i].id);
     }
 
-    Logger.log("Done cleaning up expired shares.");
+    this.logger.log("Done cleaning up expired shares.");
   }
 }

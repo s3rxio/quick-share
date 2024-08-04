@@ -24,6 +24,6 @@ export class ShareSubscriber implements EntitySubscriberInterface<Share> {
   afterRemove(event: RemoveEvent<Share>) {
     const entity = event.entity || event.databaseEntity;
 
-    entity?.files?.forEach(file => this.filesService.deleteS3Object(file.name));
+    entity?.files?.forEach(file => this.filesService.deleteS3Object(file.path));
   }
 }

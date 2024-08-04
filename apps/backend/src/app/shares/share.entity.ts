@@ -14,7 +14,8 @@ import { User } from "../users/user.entity";
 @Entity("shares")
 export class Share extends BaseEntity {
   @OneToMany(() => File, file => file.share, {
-    eager: true
+    eager: true,
+    onUpdate: "CASCADE"
   })
   files: File[];
 

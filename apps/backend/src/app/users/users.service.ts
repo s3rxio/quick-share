@@ -18,6 +18,8 @@ import { Where, PaginatedData } from "@backend/common/types";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     private readonly configService: ConfigService
@@ -148,7 +150,7 @@ export class UsersService implements OnApplicationBootstrap {
       return;
     }
 
-    Logger.log("Seeding users...");
+    this.logger.log("Seeding users...");
 
     await this.repository.save({
       username: rootUsername,
@@ -159,6 +161,6 @@ export class UsersService implements OnApplicationBootstrap {
       roles: [Role.Admin]
     });
 
-    Logger.log("Seeding users... Done.");
+    this.logger.log("Seeding users... Done.");
   }
 }

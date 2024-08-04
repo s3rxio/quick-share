@@ -44,6 +44,6 @@ export class FileSubscriber implements EntitySubscriberInterface<File> {
       return;
     }
 
-    return this.filesService.deleteS3Object(entity.name);
+    return this.filesService.deleteS3Object(entity.path);
   }
 }

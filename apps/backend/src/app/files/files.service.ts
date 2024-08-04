@@ -19,6 +19,7 @@ import { Share } from "../shares/share.entity";
 @Injectable()
 export class FilesService implements OnApplicationBootstrap {
   private readonly zip = new JsZip();
+  private readonly logger = new Logger(FilesService.name);
 
   constructor(
     @InjectRepository(File) private readonly repository: Repository<File>,
@@ -42,7 +43,7 @@ export class FilesService implements OnApplicationBootstrap {
         .getBucketLocation({ Bucket: bucketName })
         .catch(() =>
           this.createBucket(bucketName, expitration).then(() =>
-            Logger.log(`Created S3 bucket ${bucketName}`)
+            this.logger.log(`Created S3 bucket ${bucketName}`)
           )
         );
 
@@ -59,10 +60,10 @@ export class FilesService implements OnApplicationBootstrap {
           lifecycleRule.ID
         );
 
-        Logger.log("Updated S3 bucket expiration");
+        this.logger.log("Updated S3 bucket expiration");
       }
     } catch (error) {
-      Logger.error("Failed to connect or configure S3 bucket");
+      this.logger.error("Failed to connect or configure S3 bucket");
       throw error;
     }
   }
@@ -105,16 +106,11 @@ export class FilesService implements OnApplicationBootstrap {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      const [fileName, ...fileExts] = file.originalname.split(".");
-
-      const randomNumber = Math.round(Math.random() * 100);
-      const name = `${fileName}-${Date.now()}${i}${randomNumber}.${fileExts.join(
-        "."
-      )}`;
+      const name = `${share.id}/${file.originalname}`;
 
       const fileEntity = await this.repository
         .create({
-          name,
+          path: name,
           originalName: file.originalname,
           mimeType: file.mimetype,
           size: file.size,
@@ -122,7 +118,7 @@ export class FilesService implements OnApplicationBootstrap {
         })
         .save();
 
-      await this.uploadS3Object(fileEntity.name, file.mimetype, file.buffer);
+      await this.uploadS3Object(fileEntity.path, file.mimetype, file.buffer);
 
       await fileEntity.reload();
       uploadedFiles.push(fileEntity);
@@ -134,13 +130,13 @@ export class FilesService implements OnApplicationBootstrap {
   async download(id: string, res: Response) {
     const file = await this.findOneOrFail(id);
 
-    res.redirect(this.getS3ObjectUrl(file.name));
+    res.redirect(this.getS3ObjectUrl(file.path));
   }
 
   async updateFile(id: string, newFile: Express.Multer.File) {
     const file = await this.findOneOrFail(id);
 
-    await this.uploadS3Object(file.name, newFile.mimetype, newFile.buffer);
+    await this.uploadS3Object(file.path, newFile.mimetype, newFile.buffer);
 
     return this.repository.update(
       { id },
@@ -160,7 +156,7 @@ export class FilesService implements OnApplicationBootstrap {
     const s3Files = await Promise.all(
       files.map(
         async file =>
-          await this.getS3Object(file.name).then(async x => ({
+          await this.getS3Object(file.path).then(async x => ({
             name: file.originalName,
             body: await x.Body.transformToByteArray()
           }))

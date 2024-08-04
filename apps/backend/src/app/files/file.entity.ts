@@ -8,7 +8,7 @@ export class File extends BaseEntity {
   @Column({
     unique: true
   })
-  name: string;
+  path: string;
 
   @Column()
   originalName: string;
