@@ -22,7 +22,7 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Get()
-  async findAll(@Query() options: ListUsersOptionsDto) {
+  async findAll(@Query() options?: ListUsersOptionsDto) {
     return this.userService.findAll(options);
   }
 

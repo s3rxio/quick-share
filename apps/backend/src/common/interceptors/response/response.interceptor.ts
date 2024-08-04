@@ -21,10 +21,8 @@ export class ResponseInterceptor<T>
       .pipe(map(data => this.generateResponse(statusCode, data)));
   }
 
-  generateResponse<T extends Record<string, unknown>>(
-    statusCode: HttpStatus,
-    data?: T
-  ): BaseResponse<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  generateResponse(statusCode: HttpStatus, data?: any): BaseResponse<T> {
     const message =
       typeof data === "string"
         ? data
@@ -34,7 +32,6 @@ export class ResponseInterceptor<T>
             .join(" ");
 
     const res = {
-      statusCode,
       message
     };
 
@@ -42,15 +39,13 @@ export class ResponseInterceptor<T>
       return res;
     }
 
-    const isPaginated =
-      typeof data === "object" &&
-      Array.isArray(data.items) &&
-      parseInt(data.total as string, 10);
+    const isPaginated = typeof data === "object" && Array.isArray(data.items);
 
     if (isPaginated) {
       return {
         ...res,
-        ...data
+        ...data,
+        total: data.total || data.items.length
       };
     }
 
