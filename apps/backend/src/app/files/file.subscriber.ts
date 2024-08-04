@@ -28,7 +28,7 @@ export class FileSubscriber implements EntitySubscriberInterface<File> {
 
     manager.update(File, entity.id, {
       downloadLink: new URL(
-        `${this.configServise.get("api.url")}/files/${entity.id}/download`
+        `${this.configServise.get("url")}/files/${entity.id}/download`
       ).toString()
     });
   }

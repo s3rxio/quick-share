@@ -6,31 +6,33 @@ declare global {
     interface ProcessEnv {
       NODE_ENV?: string;
 
-      API_HOST?: string;
-      API_PORT?: string;
-      API_URL?: string;
+      QCKSHARE_API_HOST?: string;
+      QCKSHARE_API_PORT?: string;
+      QCKSHARE_API_URL?: string;
 
-      API_ROOT_USERNAME?: string;
-      API_ROOT_PASSWORD?: string;
+      QCKSHARE_API_ROOT_USERNAME?: string;
+      QCKSHARE_API_ROOT_PASSWORD?: string;
 
-      API_SHARE_EXPIRATION_DEFAULT?: MsLikeTime;
-      API_SHARE_EXPIRATION_MAX?: MsLikeTime;
+      QCKSHARE_API_SHARE_EXPIRATION_DEFAULT?: MsLikeTime;
+      QCKSHARE_API_SHARE_EXPIRATION_MAX?: MsLikeTime;
 
-      DB_HOST?: string;
-      DB_PORT?: string;
-      DB_USER?: string;
-      DB_PASSWORD?: string;
-      DB_NAME?: string;
+      QCKSHARE_DB_HOST?: string;
+      QCKSHARE_DB_PORT?: string;
+      QCKSHARE_DB_USER?: string;
+      QCKSHARE_DB_PASSWORD?: string;
+      QCKSHARE_DB_NAME?: string;
 
-      JWT_SECRET?: string;
+      QCKSHARE_JWT_SECRET?: string;
 
-      BCRYPT_SALT_ROUNDS?: string;
+      QCKSHARE_BCRYPT_SALT_ROUNDS?: string;
 
-      S3_ACCESS_KEY?: string;
-      S3_SECRET_KEY?: string;
-      S3_ENDPOINT?: string;
-      S3_REGION?: string;
-      S3_BUCKET_NAME?: string;
+      QCKSHARE_S3_ACCESS_KEY?: string;
+      QCKSHARE_S3_SECRET_KEY?: string;
+      QCKSHARE_S3_ENDPOINT?: string;
+      QCKSHARE_S3_REGION?: string;
+      QCKSHARE_S3_BUCKET_NAME?: string;
+
+      QCKSHARE_ENV_PATH: string;
     }
   }
 }

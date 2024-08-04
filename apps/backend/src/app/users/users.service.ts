@@ -137,7 +137,7 @@ export class UsersService implements OnApplicationBootstrap {
   }
 
   async seed() {
-    const rootUsername = this.configService.get<string>("api.root.username");
+    const rootUsername = this.configService.get<string>("root.username");
 
     const rootIsExist = await this.repository.existsBy({
       username: rootUsername
@@ -154,7 +154,7 @@ export class UsersService implements OnApplicationBootstrap {
       username: rootUsername,
       email: `${rootUsername}@localhost`,
       password: await this.generateHash(
-        this.configService.get<string>("api.root.password")
+        this.configService.get<string>("root.password")
       ),
       roles: [Role.Admin]
     });

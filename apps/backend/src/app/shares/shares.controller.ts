@@ -16,9 +16,9 @@ import { FilesInterceptor } from "@nestjs/platform-express";
 import { SharesGuard } from "./shares.guard";
 import { Response } from "express";
 import { Public } from "@backend/common/decoratos";
-import { staticConfig } from "../config";
 import { User } from "../users/user.decorator";
 import { User as UserEntity } from "../users/user.entity";
+import { getConfig } from "../config";
 
 @Controller("shares")
 export class SharesController {
@@ -36,7 +36,7 @@ export class SharesController {
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({
-          maxSize: staticConfig.api.maxUploadSize
+          maxSize: getConfig().maxUploadSize
         })
         .build({
           fileIsRequired: true
@@ -71,7 +71,7 @@ export class SharesController {
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({
-          maxSize: staticConfig.api.maxUploadSize
+          maxSize: getConfig().maxUploadSize
         })
         .build({
           fileIsRequired: true

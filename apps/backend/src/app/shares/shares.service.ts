@@ -25,7 +25,7 @@ export class SharesService implements OnApplicationBootstrap {
 
     setInterval(
       async () => await this.cleanup(),
-      this.configService.get<number>("api.share.expiration.max")
+      this.configService.get<number>("share.expiration.max")
     );
   }
 
@@ -44,8 +44,7 @@ export class SharesService implements OnApplicationBootstrap {
   async upload(files: Express.Multer.File[], user: User) {
     const share = this.repository.create({
       expiresAt: new Date(
-        Date.now() +
-          this.configService.get<number>("api.share.expiration.default")
+        Date.now() + this.configService.get<number>("share.expiration.default")
       ),
       user
     });

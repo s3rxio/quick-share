@@ -31,7 +31,7 @@ export class FilesService implements OnApplicationBootstrap {
 
     try {
       const maxExpitration =
-        this.configService.get("api.share.expiration.max", {
+        this.configService.get("share.expiration.max", {
           infer: true
         }) / ms("1d");
       const oneDay = 1;

@@ -31,8 +31,8 @@ async function bootstrap() {
 
   const configService = app.get<ConfigService>(ConfigService);
 
-  const host = configService.get<string>("api.host");
-  const port = configService.get<number>("api.port");
+  const host = configService.get<string>("host");
+  const port = configService.get<number>("port");
 
   await app.listen(port, host);
   Logger.log(

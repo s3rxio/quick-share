@@ -2,21 +2,16 @@ import { S3ClientConfig } from "@aws-sdk/client-s3";
 import { JwtModuleOptions } from "@nestjs/jwt";
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 
-export interface ApiConfig {
-  host: string;
-  port: number;
-  url: string;
-  root: {
-    username: string;
-    password: string;
+export interface shareConfig {
+  expiration: {
+    default: number;
+    max: number;
   };
-  share: {
-    expiration: {
-      default: number;
-      max: number;
-    };
-  };
-  maxUploadSize: number;
+}
+
+export interface RootConfig {
+  username: string;
+  password: string;
 }
 
 export type DbConfig = TypeOrmModuleOptions;
@@ -30,7 +25,13 @@ export interface S3Config extends S3ClientConfig {
 
 export interface Config {
   env: string;
-  api: ApiConfig;
+  host: string;
+  port: number;
+  url: string;
+  maxUploadSize: number;
+
+  root: RootConfig;
+  share: shareConfig;
   db: DbConfig;
   jwt: JwtConfig;
   bcrypt: BcryptConfig;
